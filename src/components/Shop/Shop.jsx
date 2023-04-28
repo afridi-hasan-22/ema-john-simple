@@ -12,16 +12,44 @@ const Shop = () => {
             .then(data => setProducts(data))
     }, []);
 
-    useEffect(()=>{
-        const storedCart = getShoppingCart();
-        console.log(storedCart);
-    },[])
+    useEffect(() => {
+        const storedCart = getShoppingCart()
+        const savedCart = []
+        //step :01 get id of the added product
+        for (const id in storedCart) {
+            //get product from product state by using id
+            const addedProduct = prodcuts.find(product => product.id === id);
+            if(addedProduct){
+                //step :03 add quantity
+                const quantity = storedCart[id]
+                addedProduct.quantity = quantity;
+                //step :04 add the added cart to the saved cart
+                savedCart.push(addedProduct);
+            }
+            // console.log('addedproduct', addedProduct);
+
+        }
+        //step :05 set the cart
+        setCart(savedCart);
+    }, [prodcuts])
 
     const handleAddtoCart = (product) => {
         //  cart.push(product);
-         const newCart = [...cart, product]
-         setCart(newCart)
-         addToDb(product.id)
+        // const newCart = [...cart, product]
+        //if product dosn't exist in cart, then set quantity = 1
+        //if exist update quantity by 1
+        let newCart = []
+        const exist = cart.find(pd => pd.id === product.id)
+        if(!exist){
+            product.quantity =1;
+            newCart = [...cart, product]
+        }else{
+            exist.quantity = exist.quantity + 1;
+            const remaining = cart.filter(pd => pd.id !== product.id)
+            newCart = [...remaining, exist]
+        }
+        setCart(newCart)
+        addToDb(product.id)
         //  console.log(cart)
     }
     return (
